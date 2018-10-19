@@ -27,7 +27,7 @@ def getUserAgent():
 	#...
 	return UA
 
-def create_message(username):
+def create_message(username,attempt):
 	global GKconfig
 	keyb64      = GKconfig['key']
 	ivb64 	    = GKconfig['iv']
@@ -52,7 +52,7 @@ def create_message(username):
 		sjson['clientReverse '] = socket.gethostbyname_ex(ClientIP)
 		sjson['userName'] = username
 		sjson['authMethod'] = ''
-		sjson['loginFailed'] = '0'
+		sjson['loginFailed'] = attempt
 		sjson['userAgent'] = UA
 		sjson['psychometricTyped'] = ''
 		sjson['psychometricImage'] = ''
@@ -61,17 +61,17 @@ def create_message(username):
         cryptmessage = base64.b64encode(obj.encrypt(message))
         return cryptmessage
 		
-def sendevent(username):
+def sendevent(username,attempt='0'):
 	global GKconfig
 	guardianKeyWS='https://api.guardiankey.io/checkaccess'
-	message = create_message(username)
+	message = create_message(username,attempt)
 	payload = GKconfig['hashid']+"|"+message
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	sock.sendto(MESSAGE, ('collector.guardiankey.net', 8888))
 
-def checkaccess(username):
+def checkaccess(username,attempt='0'):
 	global GKconfig
-	message = create_message(username)
+	message = create_message(username,attempt)
 	tmpdata = {}
 	tmpdata['id'] = GKconfig['hashid']
 	tmpdata['message'] = message
